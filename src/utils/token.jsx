@@ -23,6 +23,7 @@ export const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("token2");
   localStorage.removeItem("token3");
+  localStorage.removeItem("token4");
 };
 
 export const getToken2 = () => {

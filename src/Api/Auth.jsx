@@ -4,7 +4,7 @@ export const API_URL = "http://localhost:8080";
 
 export async function loginUser(email, motdepasse) {
   try {
-    const response = await fetch(`${API_URL}/`, {
+    const response = await fetch(`${API_URL}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, motdepass: motdepasse })

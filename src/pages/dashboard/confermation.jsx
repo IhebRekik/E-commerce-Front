@@ -102,6 +102,12 @@ export function Confirmation() {
       }
     });
   };
+  if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+    alert("La date de début doit être inférieure à la date de fin.");
+    setStartDate("");
+    setEndDate("");
+    return false;
+  }
 
   // FILTRAGE COMMANDES
   const filteredCommandes = commandes.filter((commande) => {
@@ -114,11 +120,13 @@ export function Confirmation() {
       statusFilter === "all" || commande.statuts === statusFilter;
 
     const commandeDate = new Date(commande.date);
+    const commandeDay = commandeDate.toISOString().split("T")[0]; // "2025-08-18"
+   
     const matchesDate =
-      (!startDate || commandeDate >= new Date(startDate)) &&
-      (!endDate || commandeDate <= new Date(endDate));
-      alert(commandeDate + " ++++++++++++ " + new Date(startDate))
+      (!startDate || commandeDay >= startDate) &&
+      (!endDate || commandeDay <= endDate);
     return matchesSearchTerm && matchesStatus && matchesDate;
+
   });
 
   if (loading) return <p>Loading commandes...</p>;
@@ -211,20 +219,29 @@ export function Confirmation() {
                     date,
                     id,
                     statuts,
+                    note
                   },
                   key
                 ) => {
-                  const className = `py-4 px-6 ${
-                    key === commandes.length - 1
-                      ? ""
-                      : "border-b border-gray-200"
-                  } hover:bg-gray-50`;
-
+                  const className = `py-4 px-6 ${key === commandes.length - 1
+                    ? ""
+                    : "border-b border-gray-200"
+                    } hover:bg-gray-50`;
+                  const rowClass =
+                    `${note === "Good" ? "bg-green-100" : note === "Bad" ? "bg-red-100" : ""} 
+                      ${key === commandes.length - 1 ? "" : "border-b border-gray-200"} 
+                      hover:bg-gray-50`;
                   return (
-                    <tr key={id} className="transition-colors">
-                      <td className={className}>
+                    <tr
+                      key={id}
+                      className={
+                        rowClass
+                      }
+                    >
+                      <td className="py-4 px-6">
                         <span className="font-semibold text-sm text-gray-800">
                           {nomPrenom}
+
                         </span>
                       </td>
                       <td className={className}>
@@ -270,15 +287,14 @@ export function Confirmation() {
                           onChange={(e) =>
                             handleStatusChange(id, e.target.value)
                           }
-                          className={`text-xs font-semibold rounded-md p-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                            statuts === ""
-                              ? "text-gray-500 border-gray-300"
-                              : statuts === "confirmed"
+                          className={`text-xs font-semibold rounded-md p-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${statuts === ""
+                            ? "text-gray-500 border-gray-300"
+                            : statuts === "confirmed"
                               ? "text-green-500 border-green-300"
                               : statuts === "rejected"
-                              ? "text-red-500 border-red-300"
-                              : "text-blue-500 border-blue-300"
-                          }`}
+                                ? "text-red-500 border-red-300"
+                                : "text-blue-500 border-blue-300"
+                            }`}
                         >
                           <option value="">Select option</option>
                           <option value="confirmed">Confirmer</option>
