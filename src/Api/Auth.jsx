@@ -1,6 +1,6 @@
 import { getToken, getToken3 } from "@/configs";
 
-export const API_URL = "http://localhost:8080";
+export const API_URL = "https://e-commerce-back-1-yvfs.onrender.com";
 
 export async function loginUser(email, motdepasse) {
   try {
