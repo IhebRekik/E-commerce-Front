@@ -50,7 +50,7 @@ export const routes = [
       ...(getToken2() !== "admin" && getToken2() !== "user"
         ? [
             { icon: <UserCircleIcon {...icon} />, name: "users", path: "/users", element: <Users /> },
-            { icon: <PlusCircle {...icon} />, name: "Signal", path: "/sign-up", element: <SignUp /> },
+            { name: "", path: "/sign-up", element: <SignUp /> },
           ]
         : []),
     ],
