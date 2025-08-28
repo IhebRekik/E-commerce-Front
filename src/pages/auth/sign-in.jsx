@@ -45,7 +45,7 @@ export function SignIn() {
     if (!result.success) {
       setErrors({ submit: result.message });
     } else {
-      window.location.reload();
+     nav("../../dashboard");
     }
 
     setIsLoading(false);
