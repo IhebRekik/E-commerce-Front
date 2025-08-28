@@ -47,12 +47,7 @@ export const routes = [
     pages: [
       ...basePages,
       ...(getToken2() === "admin" ? [{ icon: <UserCircleIcon {...icon} />, name: "users", path: "/users", element: <Users /> }] : []),
-      ...(getToken2() !== "admin" && getToken2() !== "user"
-        ? [
-            { icon: <UserCircleIcon {...icon} />, name: "users", path: "/users", element: <Users /> },
-            { name: "", path: "/sign-up", element: <SignUp /> },
-          ]
-        : []),
+   
     ],
   },
 ];
