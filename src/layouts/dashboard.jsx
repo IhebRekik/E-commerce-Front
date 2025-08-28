@@ -48,7 +48,7 @@ export function Dashboard() {
           <Cog6ToothIcon className="h-5 w-5" />
         </IconButton>
         <Routes>
-          {routes.map(
+          {filteredRoutes.map(
             ({ layout, pages }) =>
               layout === "dashboard" &&
               pages.map(({ path, element }) => (
