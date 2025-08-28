@@ -37,19 +37,30 @@ export function SignIn() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
+ const handleSubmit = async () => {
+  if (!validateForm()) return;
 
-    setIsLoading(true);
-    const result = await loginUser(formData.email, formData.password);
-    if (!result.success) {
-      setErrors({ submit: result.message });
-    } else {
-     nav("../../dashboard");
-    }
+  setIsLoading(true);
 
+  const result = await loginUser(formData.email, formData.password);
+
+  if (!result.success) {
+    setErrors({ submit: result.message });
     setIsLoading(false);
-  };
+    return;
+  }
+
+  // Wait for the token to exist
+  const interval = setInterval(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      clearInterval(interval);
+      setIsLoading(false); // stop loading after token is found
+      navigate("../../dashboard"); // navigate once token exists
+    }
+  }, 100);
+};
+
 
   return (
     <section className="m-8 flex">
