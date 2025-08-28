@@ -56,7 +56,7 @@ export function SignIn() {
     if (token) {
       clearInterval(interval);
       setIsLoading(false); // stop loading after token is found
-      navigate("../../dashboard"); // navigate once token exists
+      nav("../../dashboard"); // navigate once token exists
     }
   }, 100);
 };
