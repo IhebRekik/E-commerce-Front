@@ -7,12 +7,19 @@ import {
   Configurator,
   Footer,
 } from "@/widgets/layout";
-import routes from "@/routes";
 import { useMaterialTailwindController, setOpenConfigurator } from "@/context";
 import { useOnlineNotifier } from "@/Api/Auth";
 import { useEffect } from "react";
-
+import getRoutes from "@/routes";
 export function Dashboard() {
+  const allRoutes = getRoutes();
+  const filteredRoutes =
+  getToken2() === "admin"
+    ? allRoutes
+    : allRoutes.map(group => ({
+        ...group,
+        pages: group.pages.filter(page => page.name !== "Users"),
+      }));
   const [controller, dispatch] = useMaterialTailwindController();
   const { sidenavType } = controller;
  useEffect(() => {
@@ -21,7 +28,7 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-blue-gray-50/50">
       <Sidenav
-        routes={routes}
+        routes={filteredRoutes}
         brandImg={
           sidenavType === "dark" ? "/img/logo-ct.png" : "/img/logo-ct-dark.png"
         }
