@@ -1,4 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
+
 import {
   Navbar,
   Typography,
@@ -28,16 +29,18 @@ import {
 } from "@/context";
 import { useOfflineNotifier } from "@/Api/Auth";
 import { logout } from "@/configs";
+import { useNavigate } from "react-router-dom";
 
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { fixedNavbar, openSidenav } = controller;
   const { pathname } = useLocation();
   const [layout, page] = pathname.split("/").filter((el) => el !== "");
+  const nav = useNavigate();
   const handleLogout = () => {
     useOfflineNotifier();
     logout();
-    document.location.reload();
+   nav("../../sign-in");
   };
   return (
     <Navbar
