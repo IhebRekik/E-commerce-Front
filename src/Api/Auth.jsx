@@ -1,6 +1,6 @@
 import { getToken, getToken3 } from "@/configs";
 
-export const API_URL = "https://e-commerce-back-1-yvfs.onrender.com";
+export const API_URL = "https://e-commerce-back-production-bd14.up.railway.app";
 
 export async function loginUser(email, motdepasse) {
   try {
