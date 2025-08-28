@@ -11,6 +11,8 @@ import { useMaterialTailwindController, setOpenConfigurator } from "@/context";
 import { useOnlineNotifier } from "@/Api/Auth";
 import { useEffect } from "react";
 import getRoutes from "@/routes";
+import { getToken2 } from "@/configs";
+
 export function Dashboard() {
   const allRoutes = getRoutes();
   const filteredRoutes =
