@@ -4,37 +4,34 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts";
 
-export default function CustomPieChart({ data, colors, title }) {
+export default function CustomPieChart({ data = [], colors = [], title }) {
   const defaultColors = [
-     // indigo
-    "#22C55E",
-    "#EF4444", // green
+    "#22C55E", // green
+    "#EF4444", // red
     "#F59E0B", // amber
-     // red
     "#3B82F6", // blue
     "#D946EF", // pink
   ];
 
-  // calcul du total
   const total = data.reduce((acc, cur) => acc + cur.value, 0);
 
   return (
-    <div className="w-full h-[500px] flex flex-col items-center justify-center bg-white shadow-md rounded-2xl p-6">
-      {title && <h2 className="text-2xl font-bold mb-6">{title}</h2>}
+    <div className="relative w-full max-w-full h-[400px] sm:h-[500px] flex flex-col items-center justify-center bg-white shadow-md rounded-2xl p-4 sm:p-6">
+      {title && <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{title}</h2>}
+
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            innerRadius={80}    // donut
-            outerRadius={150}   // plus grand
-            paddingAngle={4}    // espace entre les parts
-            cornerRadius={8}    // arrondir les angles
+            innerRadius="40%"
+            outerRadius="70%"
+            paddingAngle={4}
+            cornerRadius={8}
             dataKey="value"
             label={({ name, value, percent }) =>
               `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
@@ -44,7 +41,7 @@ export default function CustomPieChart({ data, colors, title }) {
               <Cell
                 key={`cell-${index}`}
                 fill={
-                  colors && colors.length > 0
+                  colors.length
                     ? colors[index % colors.length]
                     : defaultColors[index % defaultColors.length]
                 }
@@ -59,14 +56,13 @@ export default function CustomPieChart({ data, colors, title }) {
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
             }}
           />
-
         </PieChart>
       </ResponsiveContainer>
 
       {/* total au centre */}
-      <div className="absolute flex flex-col items-center">
-        <span className="text-lg font-semibold">Total</span>
-        <span className="text-2xl font-bold text-indigo-600">{total}</span>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none">
+        <span className="text-base sm:text-lg font-semibold">Total</span>
+        <span className="text-xl sm:text-2xl font-bold text-indigo-600">{total}</span>
       </div>
     </div>
   );
