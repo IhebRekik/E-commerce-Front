@@ -12,16 +12,6 @@ export function Confirmation() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [commandesChanged, setCommandesChanged] = useState([]);
-  const [commande, setCommande] = useState({
-    nomPrenom: "",
-    telephone: "",
-    address: "",
-    produit: "",
-    quantite: 0,
-    prix: 0,
-    dateCommande: "",
-    statuts: "",
-  });
 
   // state for filters
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,14 +19,65 @@ export function Confirmation() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
+  // ✅ helper to update commandesChanged consistently
+  const updateCommandesChanged = (id, updatedFields) => {
+    setCommandesChanged((prevChanged) => {
+      const index = prevChanged.findIndex((c) => c.id === id);
+      if (index !== -1) {
+        return prevChanged.map((c) =>
+          c.id === id ? { ...c, ...updatedFields } : c
+        );
+      } else {
+        const updatedCommande = commandes.find((c) => c.id === id);
+        if (!updatedCommande) return prevChanged;
+        return [...prevChanged, { ...updatedCommande, ...updatedFields }];
+      }
+    });
+  };
+
+  const setPrix = (id, value) => {
+    const regex = /^\d+([.,]\d{0,3})?$/;
+    if (!regex.test(value)) return;
+    if (parseFloat(value.replace(",", ".")) < 0) return;
+
+    setCommandes((prevCommandes) =>
+      prevCommandes.map((commande) =>
+        commande.id === id ? { ...commande, prix: value } : commande
+      )
+    );
+
+    updateCommandesChanged(id, { prix: value });
+  };
+
+  const setProduit = (id, value) => {
+    setCommandes((prevCommandes) =>
+      prevCommandes.map((commande) =>
+        commande.id === id ? { ...commande, produit: value } : commande
+      )
+    );
+
+    updateCommandesChanged(id, { produit: value });
+  };
+
+  const handleStatusChange = (id, newStatus) => {
+    setCommandes((prevCommandes) =>
+      prevCommandes.map((commande) =>
+        commande.id === id ? { ...commande, statuts: newStatus } : commande
+      )
+    );
+
+    updateCommandesChanged(id, { statuts: newStatus });
+  };
+
   const updateCommandes = async () => {
     let i = 0;
     const updatedCommandes = commandes.map((commande) => {
       i++;
       if (parseFloat(commande.prix) <= 0 || isNaN(parseFloat(commande.prix))) {
-        alert("vérifier le prix à la ligne " + i);
+        alert("Vérifier le prix à la ligne " + i);
         return false;
       }
+      return true;
     });
     if (updatedCommandes.includes(false)) {
       alert("Veuillez corriger les erreurs avant de soumettre.");
@@ -66,42 +107,10 @@ export function Confirmation() {
     }
   };
 
-  const setPrix = (id, value) => {
-    const regex = /^\d+([.,]\d{0,3})?$/;
-    if (!regex.test(value)) return;
-    if (parseFloat(value.replace(",", ".")) < 0) return;
-
-    setCommandes((prevCommandes) =>
-      prevCommandes.map((commande) =>
-        commande.id === id ? { ...commande, prix: value } : commande
-      )
-    );
-  };
-
   useEffect(() => {
     loadCommandes();
   }, []);
 
-  const handleStatusChange = (id, newStatus) => {
-    setCommandes((prevCommandes) => {
-      return prevCommandes.map((commande) =>
-        commande.id === id ? { ...commande, statuts: newStatus } : commande
-      );
-    });
-
-    setCommandesChanged((prevChanged) => {
-      const index = prevChanged.findIndex((c) => c.id === id);
-      if (index !== -1) {
-        return prevChanged.map((c) =>
-          c.id === id ? { ...c, statuts: newStatus } : c
-        );
-      } else {
-        const updatedCommande = commandes.find((c) => c.id === id);
-        if (!updatedCommande) return prevChanged;
-        return [...prevChanged, { ...updatedCommande, statuts: newStatus }];
-      }
-    });
-  };
   if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
     alert("La date de début doit être inférieure à la date de fin.");
     setStartDate("");
@@ -109,7 +118,7 @@ export function Confirmation() {
     return false;
   }
 
-  // FILTRAGE COMMANDES
+  // ✅ FILTRAGE COMMANDES
   const filteredCommandes = commandes.filter((commande) => {
     const matchesSearchTerm =
       commande.nomPrenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -120,13 +129,13 @@ export function Confirmation() {
       statusFilter === "all" || commande.statuts === statusFilter;
 
     const commandeDate = new Date(commande.date);
-    const commandeDay = commandeDate.toISOString().split("T")[0]; // "2025-08-18"
-   
+    const commandeDay = commandeDate.toISOString().split("T")[0];
+
     const matchesDate =
       (!startDate || commandeDay >= startDate) &&
       (!endDate || commandeDay <= endDate);
-    return matchesSearchTerm && matchesStatus && matchesDate;
 
+    return matchesSearchTerm && matchesStatus && matchesDate;
   });
 
   if (loading) return <p>Loading commandes...</p>;
@@ -160,7 +169,7 @@ export function Confirmation() {
             <option value="all">Tous les statuts</option>
             <option value="confirmed">Confirmé</option>
             <option value="rejected">Annulé</option>
-            <option value="secondAttempt">Second Tentative</option>
+            <option value="secondAttempt">Deuxième Tentative</option>
           </select>
 
           <input
@@ -219,89 +228,63 @@ export function Confirmation() {
                     date,
                     id,
                     statuts,
-                    note
+                    note,
                   },
                   key
                 ) => {
-                  const className = `py-4 px-6 ${key === commandes.length - 1
-                    ? ""
-                    : "border-b border-gray-200"
-                    } hover:bg-gray-50`;
-                  const rowClass =
-                    `${note === "Good" ? "bg-green-100" : note === "Bad" ? "bg-red-100" : ""} 
-                      ${key === commandes.length - 1 ? "" : "border-b border-gray-200"} 
-                      hover:bg-gray-50`;
+                  const rowClass = `
+                    ${note === "Good" ? "bg-green-100" : note === "Bad" ? "bg-red-100" : ""} 
+                    ${key === commandes.length - 1 ? "" : "border-b border-gray-200"} 
+                    hover:bg-gray-50`;
+
                   return (
-                    <tr
-                      key={id}
-                      className={
-                        rowClass
-                      }
-                    >
+                    <tr key={id} className={rowClass}>
                       <td className="py-4 px-6">
                         <span className="font-semibold text-sm text-gray-800">
                           {nomPrenom}
-
                         </span>
                       </td>
-                      <td className={className}>
-                        <span className="text-xs font-normal text-gray-600">
-                          {telephone}
-                        </span>
+                      <td className="py-4 px-6 text-xs text-gray-600">{telephone}</td>
+                      <td className="py-4 px-6 text-xs text-gray-600">{address}</td>
+                      <td className="py-4 px-6">
+                        <input
+                          type="text"
+                          onChange={(e) => setProduit(id, e.target.value)}
+                          value={produit}
+                          className="border border-gray-300 rounded-md p-1 text-xs"
+                        />
                       </td>
-                      <td className={className}>
-                        <span className="text-xs font-normal text-gray-600">
-                          {address}
-                        </span>
+                      <td className="py-4 px-6 text-xs text-gray-600">{qtit}</td>
+                      <td className="py-4 px-6">
+                        <input
+                          type="number"
+                          onChange={(e) => setPrix(id, e.target.value)}
+                          value={prix}
+                          min="0"
+                          className="border border-gray-300 rounded-md p-1 text-xs"
+                        />
                       </td>
-                      <td className={className}>
-                        <span className="text-xs font-normal text-gray-600">
-                          {produit}
-                        </span>
+                      <td className="py-4 px-6 text-xs font-semibold text-gray-700">
+                        {date}
                       </td>
-                      <td className={className}>
-                        <span className="text-xs font-normal text-gray-600">
-                          {qtit}
-                        </span>
-                      </td>
-                      <td className={className}>
-                        <span className="text-xs font-normal text-gray-600">
-                          <input
-                            type="number"
-                            onChange={(e) => setPrix(id, e.target.value)}
-                            value={prix}
-                            min="0"
-                            className="border border-gray-300 rounded-md p-1 text-xs"
-                            pattern="[0-9]*"
-                          />
-                        </span>
-                      </td>
-                      <td className={className}>
-                        <span className="text-xs font-semibold text-gray-700">
-                          {date}
-                        </span>
-                      </td>
-                      <td className={className}>
+                      <td className="py-4 px-6">
                         <select
                           value={statuts}
-                          onChange={(e) =>
-                            handleStatusChange(id, e.target.value)
-                          }
-                          className={`text-xs font-semibold rounded-md p-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${statuts === ""
-                            ? "text-gray-500 border-gray-300"
-                            : statuts === "confirmed"
+                          onChange={(e) => handleStatusChange(id, e.target.value)}
+                          className={`text-xs font-semibold rounded-md p-2 border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                            statuts === ""
+                              ? "text-gray-500 border-gray-300"
+                              : statuts === "confirmed"
                               ? "text-green-500 border-green-300"
                               : statuts === "rejected"
-                                ? "text-red-500 border-red-300"
-                                : "text-blue-500 border-blue-300"
-                            }`}
+                              ? "text-red-500 border-red-300"
+                              : "text-blue-500 border-blue-300"
+                          }`}
                         >
                           <option value="">Select option</option>
                           <option value="confirmed">Confirmer</option>
                           <option value="rejected">Annuler</option>
-                          <option value="secondAttempt">
-                            Deuxième Tentative
-                          </option>
+                          <option value="secondAttempt">Deuxième Tentative</option>
                         </select>
                       </td>
                     </tr>
@@ -314,14 +297,14 @@ export function Confirmation() {
                 <td colSpan="8" className="py-4 px-6">
                   <div className="flex flex-wrap gap-4 justify-end">
                     <button
-                      className="bg-red-600 text-white text-sm font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-red-700 transition-colors duration-200 flex items-center gap-2"
+                      className="bg-red-600 text-white text-sm font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-red-700 transition-colors duration-200"
                       onClick={() => document.location.reload()}
                     >
                       Clear
                     </button>
                     <button
-                      className="bg-green-600 text-white text-sm font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 flex items-center gap-2"
-                      onClick={() => updateCommandes()}
+                      className="bg-green-600 text-white text-sm font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200"
+                      onClick={updateCommandes}
                     >
                       Enregistrer
                     </button>
