@@ -30,6 +30,7 @@ export function Confirmation() {
       } else {
         const updatedCommande = commandes.find((c) => c.id === id);
         if (!updatedCommande) return prevChanged;
+        alert({ ...updatedCommande, ...updatedFields });
         return [...prevChanged, { ...updatedCommande, ...updatedFields }];
       }
     });
