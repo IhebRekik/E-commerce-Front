@@ -33,7 +33,7 @@ export function Delivered() {
     loadCommandes();
   }, []);
 const handleDesignationChange = (value, id) => {
-  setClients((prev) =>
+  setCommandes((prev) =>
     prev.map((client) =>
       client.id === id ? { ...client, designation: value } : client
     )
