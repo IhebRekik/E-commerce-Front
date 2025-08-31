@@ -5,7 +5,7 @@ import {
   CardBody,
   Typography,
 } from "@material-tailwind/react";
-import { deleteCommandes, fetchCommandesToDeliver } from "@/Api/c";
+import { deleteCommandes, fetchCommandesToDeliver , updateCommandeStatus } from "@/Api/c";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
@@ -32,7 +32,25 @@ export function Delivered() {
   useEffect(() => {
     loadCommandes();
   }, []);
-
+const handleDesignationChange = (value, id) => {
+  setClients((prev) =>
+    prev.map((client) =>
+      client.id === id ? { ...client, designation: value } : client
+    )
+  );
+};
+  const handleUpdateCommandes = async () => {
+  try {
+    setLoading(true);
+    await updateCommandeStatus(commandes);
+    loadCommandes();
+    setCommandesChanged([]);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
   const filteredCommandes = commandes.filter((commande) => {
     const matchesSearchTerm =
       commande.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -103,13 +121,19 @@ export function Delivered() {
             >
               Clear
             </button>
-
+<button
+              onClick={handleUpdateCommandes}
+              className="bg-green-500 text-white rounded-md px-4 py-2 hover:bg-green-600 transition"
+            >
+              Enregistrer Modification
+            </button>
             <button
               onClick={exportToExcel}
               className="bg-blue-500 text-white rounded-md px-4 py-2 hover:bg-blue-600 transition"
             >
               Export to CSV
             </button>
+            
           </div>
         </div>
 
@@ -193,9 +217,12 @@ export function Delivered() {
                       </span>
                     </td>
                     <td className={className}>
-                      <span className="text-xs font-normal text-gray-600">
-                        {c.designation}
-                      </span>
+                    <input
+  type="text"
+  className="text-xs font-normal text-gray-600 border rounded px-2 py-1 focus:outline-none focus:ring focus:ring-blue-300"
+  value={c.designation}
+  onChange={(e) => handleDesignationChange(e.target.value, c.id)} 
+/>
                     </td>
                   </tr>
                 );
